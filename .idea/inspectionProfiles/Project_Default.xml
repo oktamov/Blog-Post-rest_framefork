@@ -1,0 +1,28 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <value>
+          <list size="3">
+            <item index="0" class="java.lang.String" itemvalue="stability-sdk" />
+            <item index="1" class="java.lang.String" itemvalue="environs" />
+            <item index="2" class="java.lang.String" itemvalue="asyncpg" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="telebot.logger.setLevel" />
+          <option value="aiogram.utils.i18n.set_locale" />
+          <option value="type.with_ui" />
+          <option value="type.without_ui" />
+          <option value="rest_framework.schemas.openapi.Contact" />
+          <option value="products.models.product.Product.objects" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
