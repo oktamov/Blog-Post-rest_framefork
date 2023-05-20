@@ -9,10 +9,11 @@
 #     path('comments/create/', CommentCreateAPIView.as_view(), name='comment_create'),
 # ]
 from django.urls import path
-from .views import PostList, PostDetail, CommentCreate, CommentList, PostLike
+from .views import PostList, PostDetail, CommentCreate, CommentList, PostLike, PostCreateView
 
 urlpatterns = [
     path('posts/', PostList.as_view(), name='post_list'),
+    path('posts/create', PostCreateView.as_view(), name='post_create'),
     path('posts/<int:pk>/', PostDetail.as_view(), name='post_detail'),
     path('post-detail/<slug:slug>/like/', PostLike.as_view(), name='post_likes'),
     path('posts/<int:post_pk>/comments/create/', CommentCreate.as_view(), name='comment_create'),
