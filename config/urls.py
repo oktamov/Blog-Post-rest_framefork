@@ -26,11 +26,11 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="P10 ecommerce API",
+        title="Blog Post Api",
         default_version='v1',
         description="P10 2023 test API",
         terms_of_service="https://www.google.com/policies/terms/",
-        contact=openapi.Contact(email="contact@p10.com"),
+        contact=openapi.Contact(email="mr006developer@gmail.com"),
         license=openapi.License(name="BSD License"),
     ),
     public=True,
@@ -41,6 +41,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('post/', include('blogs.urls')),
+    path('category/', include('common.urls')),
     # path('rest-auth/', include('rest_auth.urls')),
     # path('rest-auth/registration/', include('rest_auth.registration.urls')),
     # path('dj-rest-auth/', include('dj_rest_auth.urls')),

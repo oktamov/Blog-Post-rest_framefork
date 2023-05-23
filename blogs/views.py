@@ -1,33 +1,25 @@
-from rest_framework import generics, permissions, status
-
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from django.http import Http404
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from blogs.models import LikeDislike
+from blogs.serializers import CommentsDetailSerializer, \
+    BlogLikeDislikeSerializer
+from custom_permission import IsOwnerOrReadOnly
 
 from paginations import CustomPageNumberPagination
 from .models import Post, Comment
-from .serializers import PostSerializer, CommentCreateSerializer, CommentSerializer
+from .serializers import PostSerializer, CommentSerializer
 
 
-class PostLike(APIView):
-    def post(self, request, slug):
-        post = Post.objects.get(slug=slug)
-        user = request.user
-        if user in post.liked.all():
-            post.liked.remove(user)
-            return Response({'detail': 'Post unliked.'}, status=status.HTTP_200_OK)
-        else:
-            post.liked.add(user)
-            return Response({'detail': 'Post liked.'}, status=status.HTTP_200_OK)
-
-
-class PostList(generics.ListCreateAPIView):
+class PostList(generics.ListAPIView):
     queryset = Post.objects.all().order_by('-id')[:20]
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['author']
     search_fields = ['title', 'content']
@@ -41,30 +33,58 @@ class PostList(generics.ListCreateAPIView):
 class PostCreateView(generics.CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
 
 class PostDetail(generics.RetrieveUpdateDestroyAPIView):
+    lookup_field = 'slug'
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = [IsOwnerOrReadOnly]
 
 
-class CommentCreate(generics.CreateAPIView):
+class CommentListCreateView(generics.ListCreateAPIView):
+    queryset = Comment.objects.order_by("-id")
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CommentsDetailSerializer
+        return CommentSerializer
+
+
+class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
-    serializer_class = CommentCreateSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    lookup_field = "id"
+    permission_classes = [IsOwnerOrReadOnly]
 
-    def perform_create(self, serializer):
-        post_pk = self.kwargs.get('post_pk')
-        post = generics.get_object_or_404(Post, pk=post_pk)
-        serializer.save(post=post, author=self.request.user)
+    def get_serializer_class(self):
+        if self.request.method in ["PUT", "PATCH"]:
+            return CommentsDetailSerializer
+        return CommentSerializer
 
 
-class CommentList(generics.ListAPIView):
-    serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+class BlogLikeDislikeView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    def get_queryset(self):
-        post_pk = self.kwargs.get('post_pk')
-        return Comment.objects.filter(post_id=post_pk)
+    @swagger_auto_schema(request_body=BlogLikeDislikeSerializer)
+    def post(self, request, *args, **kwargs):
+        serializer = BlogLikeDislikeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        type_ = serializer.validated_data.get("type")
+        type_detail = ''
+        if type_ == '1':
+            type_detail = 'liked'
+        if type_ == '-1':
+            type_detail = 'unliked'
+        user = request.user
+        blog = Post.objects.filter(slug=self.kwargs.get("slug")).first()
+        if not blog:
+            raise Http404
+        like_dislike_blog = LikeDislike.objects.filter(blog=blog, user=user).first()
+        if like_dislike_blog and like_dislike_blog.type == type_:
+            like_dislike_blog.delete()
+        else:
+            LikeDislike.objects.update_or_create(blog=blog, user=user, defaults={"type": type_})
+        data = {"type": type_, "detail": type_detail}
+        return Response(data)

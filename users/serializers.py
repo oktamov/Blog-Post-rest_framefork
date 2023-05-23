@@ -66,32 +66,31 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate(self, attrs):
-        email_or_username = attrs.get('username_or_email')
+        username_or_email = attrs.get('username_or_email')
         password = attrs.get('password')
-
-        if email_or_username and password:
-            user = authenticate(email=email_or_username, password=password)
+        model = User.objects.all()
+        if username_or_email and password:
+            user = authenticate(email=username_or_email, password=password)
             if user:
-                if not user.is_active:
-                    msg = 'User users is disabled.'
-                    raise serializers.ValidationError(msg, code='authorization')
                 attrs['user'] = user
                 return attrs
-            else:
-                msg = 'Unable to log in with provided credentials.'
-                raise serializers.ValidationError(msg, code='authorization')
-        elif email_or_username and password:
-            user = authenticate(username=email_or_username, password=password)
+
+        if username_or_email and password:
+            email = model.all().filter(username__exact=username_or_email).values('email').first().get('email')
+            user = authenticate(email=email, password=password)
             if user:
-                if not user.is_active:
-                    msg = 'User users is disabled.'
-                    raise serializers.ValidationError(msg, code='authorization')
                 attrs['user'] = user
                 return attrs
+
             else:
-                msg = 'aa'
+                msg = 'avval royxatdan o\'t'
                 raise serializers.ValidationError(msg, code='authorization')
 
-        else:
-            msg = 'Must include "email_or_username" and "password".'
-            raise serializers.ValidationError(msg, code='authorization')
+
+class SendEmailVerificationCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class CheckEmailVerificationCodeSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code = serializers.CharField(min_length=6, max_length=6)

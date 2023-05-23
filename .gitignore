@@ -2,7 +2,9 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+db.sqlite3
+Pipfile.lock
+Pipfile
 # C extensions
 *.so
 
@@ -58,7 +60,7 @@ cover/
 # Django stuff:
 *.log
 local_settings.py
-db.sqlite3
+
 db.sqlite3-journal
 
 # Flask stuff:

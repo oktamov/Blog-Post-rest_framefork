@@ -13,6 +13,7 @@ django-allauth = "*"
 pillow = "*"
 dj-rest-auth = "*"
 django-filter = "*"
+django-environ = "*"
 
 [dev-packages]
 
