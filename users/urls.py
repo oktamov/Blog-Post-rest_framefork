@@ -2,7 +2,6 @@ from django.urls import path
 from .views import UserRegisterView, LoginView, ProfilView, PasswordChangeView, SendEmailVerificationCodeView, \
     CheckEmailVerificationCodeView, CheckEmailVerificationCodeWithParams
 
-
 urlpatterns = [
     path('register/', UserRegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
@@ -11,4 +10,5 @@ urlpatterns = [
     path("email/verification/", SendEmailVerificationCodeView.as_view(), name="send-email-code"),
     path("email/check-verification/", CheckEmailVerificationCodeView.as_view(), name="check-email-code"),
     path("email/check-verification-code/", CheckEmailVerificationCodeWithParams.as_view(), name="check-email"),
+
 ]

@@ -124,3 +124,4 @@ class CheckEmailVerificationCodeWithParams(APIView):
         verification_code.is_verified = True
         verification_code.save(update_fields=["is_verified"])
         return Response({"detail": "Verification code is verified."})
+

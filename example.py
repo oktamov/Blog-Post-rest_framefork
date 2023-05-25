@@ -1,6 +1,8 @@
 import requests
 
-url = 'http://127.0.0.1:8000/post/posts/5/'
+url = 'https://mralidev.pythonanywhere.com/post/posts/'
 
-response = requests.request("GET", url)
+url1 = 'https://bozor.com/uz/products_all/Grechka/grechka-qop/'
+
+response = requests.request("GET", url1)
 print(response.json())
